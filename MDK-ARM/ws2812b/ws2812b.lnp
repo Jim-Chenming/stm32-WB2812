@@ -1,6 +1,7 @@
 --cpu Cortex-M3
 "ws2812b\startup_stm32f103xb.o"
 "ws2812b\mylib_ws28xx.o"
+"ws2812b\mylib_ws28xx_test.o"
 "ws2812b\main.o"
 "ws2812b\gpio.o"
 "ws2812b\dma.o"

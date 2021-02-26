@@ -27,6 +27,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "../mylib/Inc/mylib_ws28xx.h"
+#include "../mylib/Inc/mylib_ws28xx_test.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -68,15 +69,6 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	uint8_t rgb[][3]={
-	{0xFF,0,0},
-	{0,0xFF,0},
-	{0,0,0xFF},
-	{0xFF,0xF0,0xF0},
-	{0x0F,0x0F,0x0F},
-	{0x0F<<2,0x0F<<2,0x0F<<2}
-	};
-	float l=0;
   /* USER CODE END 1 */
   
 
@@ -102,19 +94,13 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 	WS28xx_TypeStructInit();
-	WS28xx.SetPixelColor_From_RGB_Buffer(0,rgb,6);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		WS28xx.SetALLColor_Light(l);
-		l+=0.05;
-		if(l>1)
-			l=0;
-		WS28xx.show();
-		HAL_Delay(500);
+		WS2812_test();
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
   }

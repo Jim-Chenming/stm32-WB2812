@@ -9,7 +9,7 @@ void __show()
 
 		
 //设置index的颜色
-void __SetPixelColor_RGB(unsigned short index,unsigned char r,unsigned char g,unsigned char b)
+void __SetPixelColor_RGB(unsigned short int index,unsigned char r,unsigned char g,unsigned char b)
 {
 	unsigned char j;
 	if(index > WS28xx.Pixel_size)
@@ -25,7 +25,7 @@ void __SetPixelColor_RGB(unsigned short index,unsigned char r,unsigned char g,un
 	}
 }
 //获取某个位置的RGB
-void __GetPixelColor_RGB(unsigned short index,unsigned char *r,unsigned char *g,unsigned char *b)
+void __GetPixelColor_RGB(unsigned short int index,unsigned char *r,unsigned char *g,unsigned char *b)
 {
 	unsigned char j;
 	*r=0;
@@ -49,9 +49,9 @@ void __GetPixelColor_RGB(unsigned short index,unsigned char *r,unsigned char *g,
 {r1,g1,b2},
 {r1,g1,b2}};
 */
-void __SetPixelColor_From_RGB_Buffer( unsigned short pixelIndex,unsigned char pRGB_Buffer[][3],unsigned short DataCount)
+void __SetPixelColor_From_RGB_Buffer( unsigned short int pixelIndex,unsigned char pRGB_Buffer[][3],unsigned short int DataCount)
 {
-	unsigned short Index,j=0;
+	unsigned short int Index,j=0;
 	for(Index=pixelIndex;Index < WS28xx.Pixel_size; Index++)
 	{
 			WS28xx.SetPixelColor_RGB(Index,pRGB_Buffer[j][0],pRGB_Buffer[j][1],pRGB_Buffer[j][2]);
@@ -62,18 +62,15 @@ void __SetPixelColor_From_RGB_Buffer( unsigned short pixelIndex,unsigned char pR
 }
 
 //设置所有颜色
-void __SetALLColor_RGB(unsigned short index,unsigned char r,unsigned char g,unsigned char b)
+void __SetALLColor_RGB(unsigned char r,unsigned char g,unsigned char b)
 {
-	unsigned short Index;
+	unsigned short int Index;
 	for(Index=0;Index < WS28xx.Pixel_size; Index++)
 	{
 		WS28xx.SetPixelColor_RGB(Index,r,g,b);
 	}
 }
 
-//设置亮度(0.01~~1)
-#define max(a,b,c) (a>b?a:b>c?b:c)
-#define min(a,b,c) (a<b?a:b<c?b:c)
 void RGB2HSV(unsigned char r, unsigned char g, unsigned char b, float *h, float *s, float *v)
 {
   float red, green ,blue;
@@ -83,8 +80,8 @@ void RGB2HSV(unsigned char r, unsigned char g, unsigned char b, float *h, float 
   green = (float)g / 255;
   blue = (float)b / 255;
   
-  cmax = max(red, green, blue);
-  cmin = min(red, green, blue);
+  cmax = MAX(red, green, blue);
+  cmin = MIN(red, green, blue);
   delta = cmax - cmin;
 
   /* H */
@@ -152,26 +149,80 @@ void HSV2RGB(float h, float s, float v, unsigned char *r, unsigned char *g, unsi
             break;
     }
 }
-void __SetPixelColor_Light(unsigned short pixelIndex,float light)
+//单独设置index的RGB颜色
+void __SetPixelColor_HSV(unsigned short int pixelIndex,unsigned short int h,float s,float v)
+{
+	unsigned char r,g,b;
+	h = LIMIT(h,HSV_H_MAX,HSV_H_MIN);
+	s = LIMIT(s,HSV_S_MAX,HSV_S_MIN);
+	v = LIMIT(v,HSV_V_MAX,HSV_V_MIN);
+	HSV2RGB(h, s, v, &r, &g, &b);
+	WS28xx.SetPixelColor_RGB(pixelIndex,r,g,b);
+}
+void __SetPixelColor_HSV_H(unsigned short int pixelIndex,unsigned short int setH)
 {
 	unsigned char r,g,b;
 	float h,s,v;
 	WS28xx.GetPixelColor_RGB(pixelIndex,&r,&g,&b);
 	RGB2HSV(r,g,b, &h, &s, &v);
-	v = light>0.005? light<=1 ? light:1 :0.005;
+	h = LIMIT(setH,HSV_H_MAX,HSV_H_MIN);
+	s = LIMIT(s,HSV_S_MAX,HSV_S_MIN);
+	v = LIMIT(v,HSV_V_MAX,HSV_V_MIN);
 	HSV2RGB(h, s, v, &r, &g, &b);
 	WS28xx.SetPixelColor_RGB(pixelIndex,r,g,b);
 }
 
-void __SetALLColor_Light(float light)
+
+void __SetPixelColor_HSV_S(unsigned short int pixelIndex,float setS)
 {
-	unsigned short Index;
-	for(Index=0;Index < WS28xx.Pixel_size; Index++)
-	{
-		WS28xx.SetPixelColor_Light(Index,light);
-	}
+	unsigned char r,g,b;
+	float h,s,v;
+	WS28xx.GetPixelColor_RGB(pixelIndex,&r,&g,&b);
+	RGB2HSV(r,g,b, &h, &s, &v);
+	h = LIMIT(h,HSV_H_MAX,HSV_H_MIN);
+	s = LIMIT(setS,HSV_S_MAX,HSV_S_MIN);
+	v = LIMIT(v,HSV_V_MAX,HSV_V_MIN);
+	HSV2RGB(h, s, v, &r, &g, &b);
+	WS28xx.SetPixelColor_RGB(pixelIndex,r,g,b);
+}
+void __SetPixelColor_HSV_V(unsigned short int pixelIndex,float setV)
+{
+	unsigned char r,g,b;
+	float h,s,v;
+	WS28xx.GetPixelColor_RGB(pixelIndex,&r,&g,&b);
+	RGB2HSV(r,g,b, &h, &s, &v);
+	h = LIMIT(h,HSV_H_MAX,HSV_H_MIN);
+	s = LIMIT(s,HSV_S_MAX,HSV_S_MIN);
+	v = LIMIT(setV,HSV_V_MAX,HSV_V_MIN);
+	HSV2RGB(h, s, v, &r, &g, &b);
+	WS28xx.SetPixelColor_RGB(pixelIndex,r,g,b);
 }
 
+
+void __SetALLColor_HSV_H(unsigned short int setH)
+{
+	unsigned short int Index;
+	for(Index=0;Index < WS28xx.Pixel_size; Index++)
+	{
+		WS28xx.SetPixelColor_HSV_H(Index,setH);
+	}
+}
+void __SetALLColor_HSV_S(float setS)
+{
+	unsigned short int Index;
+	for(Index=0;Index < WS28xx.Pixel_size; Index++)
+	{
+		WS28xx.SetPixelColor_HSV_S(Index,setS);
+	}
+}
+void __SetALLColor_HSV_V(float setV)
+{
+	unsigned short int Index;
+	for(Index=0;Index < WS28xx.Pixel_size; Index++)
+	{
+		WS28xx.SetPixelColor_HSV_V(Index,setV);
+	}
+}
 
 void	WS28xx_TypeStructInit()
 {
@@ -180,7 +231,13 @@ void	WS28xx_TypeStructInit()
 	WS28xx.SetPixelColor_From_RGB_Buffer=__SetPixelColor_From_RGB_Buffer;
 	WS28xx.SetPixelColor_RGB=__SetPixelColor_RGB;
 	WS28xx.SetALLColor_RGB=__SetALLColor_RGB;
-	WS28xx.SetPixelColor_Light=__SetPixelColor_Light;
-	WS28xx.SetALLColor_Light=__SetALLColor_Light;
+	//HSV空间设置
+	WS28xx.SetPixelColor_HSV=__SetPixelColor_HSV;
+	WS28xx.SetPixelColor_HSV_H=__SetPixelColor_HSV_H;
+	WS28xx.SetPixelColor_HSV_S=__SetPixelColor_HSV_S;
+	WS28xx.SetPixelColor_HSV_V=__SetPixelColor_HSV_V;
+	WS28xx.SetALLColor_HSV_H=__SetALLColor_HSV_H;
+	WS28xx.SetALLColor_HSV_S=__SetALLColor_HSV_S;
+	WS28xx.SetALLColor_HSV_V=__SetALLColor_HSV_V;
 	WS28xx.show=__show;
 }

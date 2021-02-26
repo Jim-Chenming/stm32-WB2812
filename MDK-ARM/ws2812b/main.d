@@ -31,3 +31,4 @@ ws2812b\main.o: ../Inc/dma.h
 ws2812b\main.o: ../Inc/tim.h
 ws2812b\main.o: ../Inc/gpio.h
 ws2812b\main.o: ../Src/../mylib/Inc/mylib_ws28xx.h
+ws2812b\main.o: ../Src/../mylib/Inc/mylib_ws28xx_test.h
